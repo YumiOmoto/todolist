@@ -1,6 +1,6 @@
 import React from 'react';
 import classNames from 'classnames/bind';
-// import ReactDOM from 'react-dom';
+
 
 const getKey = () => Math.random().toString(32).substring(2);
 /*
@@ -16,22 +16,21 @@ function Todo() {
   // filteringのstateの追加 ALL/TODO/DONEの3つに分類
   const [filter, setFilter] = React.useState('ALL');
 
-
-  
   // ... items means add
+  // textを渡す
   const handleAdd = text => {
-    setItems([...items, {key: getKey(), text, done: false}]); 
+    setItems([...items, { key: getKey(), text, done: false }]); 
   };
   
   const handleFilterChange = value => setFilter(value);
   
 
   const displayItems = items.filter(item => {
-    if (filter === 'ALL') return true;
-    if (filter === 'TODO') return !item.done;
-    if (filter === 'DONE') return item.done;
+    if (filter === 'ALL') return item;
+    if (filter === 'TODO'&& !item.done) return item;
+    if (filter === 'DONE'&& item.done) return item;
   });
-  
+
   const handleCheck = checked => {
     const newItems = items.map(item => {
       if (item.key === checked.key){
@@ -87,7 +86,14 @@ function TodoItem({ item, onCheck }) {
       checked={item.done} 
       onChange={handleChange}
       />
+      <span
+        className={classNames({
+          'has-text-grey-light': item.done //className={item.done ? 'has-text-grey-light' : ''}と同じ
+
+        })}
+      >
       {item.text}
+      </span>
     </label>
   );
 }
@@ -100,12 +106,12 @@ function Input({ onAdd }){
 
   // エンターキーを押した時のハンドラの実装
   const handleKeyDown = e => {
-      if (e.key === 'Enter') {
-        onAdd(text);
-        setText('');
-      }
+    if (e.key === 'Enter') {
+      onAdd(text);
+      setText('');
+    }
   };
-
+ // return内 classNameではないか
   return (
     <div className="panel-block">
       <input
@@ -120,32 +126,33 @@ function Input({ onAdd }){
   );
 }
 
-
+// Uncaught TypeError: e.preventDefalut is not a function
 function Filter({ value, onChange }) {
   const handleClick = (key, e) => {
-    console.log({e})
-    e.preventDefalut(); //clickの制御
+    console.log({key, e})
+    e.preventDefalut(); // デフォルトの動作を発生させない
     onChange(key);
   };
 
   // ハンドラに引数を渡す→bind
   //classnamesを使用
+
   return (
     <div className="panel-tabs">
       <a
         href='#'
         onClick={handleClick.bind(null, 'ALL')}
-        className={classNames({ 'is-active': value === 'ALL'})}
+        className={classNames({ 'is-active': value === 'ALL' })}
       >ALL</a>
       <a
         href='#'
         onClick={handleClick.bind(null, 'TODO')}
-        className={classNames({ 'is-active': value === 'TODO'})}
+        className={classNames({ 'is-active': value === 'TODO' })}
       >ToDo</a>
       <a
       href='#'
       onClick={handleClick.bind(null, 'DONE')}
-      className={classNames({ 'is-active': value === 'DONE'})}
+      className={classNames({ 'is-active': value === 'DONE' })}
       >Done</a>
     </div>
   );
